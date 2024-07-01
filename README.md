@@ -1,5 +1,5 @@
 # Table of contents
-* [JediTermFx](#jeditermfx)
+* [JediTermFX](#jeditermfx)
 * [Demo](#demo)
 * [Features](#features)
 * [Terminal Comparison](#comparison)
@@ -19,7 +19,7 @@ any JavaFX application. A detailed comparison of terminal libraries is provided 
 
 # Demo <a name="demo"></a>
 
-![JediTermFx demo](./demo.gif)
+![JediTermFX demo](./demo.gif)
 
 # Features <a name="features"></a>
 
