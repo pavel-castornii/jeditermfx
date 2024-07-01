@@ -1,0 +1,8 @@
+
+/target/
+nb-configuration.xml
+nbactions.xml
+
+/jeditermfx-app/target/
+/jeditermfx-core/target/
+/jeditermfx-ui/target/

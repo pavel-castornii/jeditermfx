@@ -1,0 +1,4 @@
+
+.scroll-bar.no-thumb > .thumb {
+    -fx-opacity: 0;
+}
