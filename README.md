@@ -14,8 +14,8 @@
 
 JediTermFX is a Terminal Emulator for JavaFX. The project is a result of porting the
 [JediTerm](https://github.com/JetBrains/jediterm) project (commit 8366f2b) from Swing to JavaFX. JediTermFX exclusively
-utilizes JavaFX components. As a result, the Terminal Emulator based on this library seamlessly integrates into any
-JavaFX application. A detailed comparison of the libraries is provided below.
+utilizes JavaFX components. As a result, the Terminal Emulator based on this library can be seamlessly integrated into
+any JavaFX application. A detailed comparison of terminal libraries is provided below.
 
 # Demo <a name="demo"></a>
 
