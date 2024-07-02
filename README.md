@@ -51,7 +51,7 @@ To build the library use standard Git and Maven commands:
 
 # Running the Application <a name="application"></a>
 
-The project contains demo application that shows how to use this library. There are two ways to run the application.
+The project contains a demo application that shows how to use this library. There are two ways to run the application.
 
 ## Using Maven <a name="application-maven"></a>
 
