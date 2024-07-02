@@ -49,7 +49,7 @@ To build the library use standard Git and Maven commands:
     cd jeditermfx
     mvn clean install
 
-# Running the Application <a name="code-building"></a>
+# Running the Application <a name="application"></a>
 
 The project contains demo application that shows how to use this library. There are two ways to run the application.
 
