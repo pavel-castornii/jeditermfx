@@ -11,7 +11,11 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * @author traff
@@ -22,14 +26,13 @@ public class TextProcessing {
 
     private final List<HyperlinkFilter> myHyperlinkFilter;
 
-    private TextStyle myHyperlinkColor;
+    private final TextStyle myHyperlinkColor;
 
-    private HyperlinkStyle.HighlightMode myHighlightMode;
+    private final HyperlinkStyle.HighlightMode myHighlightMode;
 
     private TerminalTextBuffer myTerminalTextBuffer;
 
-    public TextProcessing(@NotNull TextStyle hyperlinkColor,
-                          @NotNull HyperlinkStyle.HighlightMode highlightMode) {
+    public TextProcessing(@NotNull TextStyle hyperlinkColor, @NotNull HyperlinkStyle.HighlightMode highlightMode) {
         myHyperlinkColor = hyperlinkColor;
         myHighlightMode = highlightMode;
         myHyperlinkFilter = new ArrayList<>();
@@ -66,16 +69,47 @@ public class TextProcessing {
                 LinkResult result = filter.apply(lineStr);
                 if (result != null) {
                     for (LinkResultItem item : result.getItems()) {
-                        TextStyle style = new HyperlinkStyle(myHyperlinkColor.getForeground(), myHyperlinkColor.getBackground(),
-                                item.getLinkInfo(), myHighlightMode, null);
+                        TextStyle style = new HyperlinkStyle(myHyperlinkColor.getForeground(),
+                                myHyperlinkColor.getBackground(), item.getLinkInfo(), myHighlightMode, null);
                         if (item.getStartOffset() < 0 || item.getEndOffset() > lineStr.length()) continue;
                         int prevLinesLength = 0;
                         for (int lineInd = startLineInd; lineInd <= updatedLineInd; lineInd++) {
                             int startLineOffset = Math.max(prevLinesLength, item.getStartOffset());
                             int endLineOffset = Math.min(prevLinesLength + myTerminalTextBuffer.getWidth(), item.getEndOffset());
                             if (startLineOffset < endLineOffset) {
-                                buffer.getLine(lineInd).writeString(startLineOffset - prevLinesLength,
-                                        new CharBuffer(lineStr.substring(startLineOffset, endLineOffset)), style);
+                                var x = startLineOffset - prevLinesLength;
+                                var finalStr = lineStr.substring(startLineOffset, endLineOffset);
+                                var line = buffer.getLine(lineInd);
+                                if (myHighlightMode.isOriginalColorUsed()) {
+                                    var stylesByPosition = getStylesByPostion(line, x, finalStr.length());
+                                    var entries = stylesByPosition.entrySet().stream().collect(Collectors.toList());
+                                    for (var i = 0; i < entries.size(); i++) {
+                                        var currentEntry = entries.get(i);
+                                        Map.Entry<Integer, TextStyle> nextEntry = null;
+                                        if (i + 1 < entries.size()) {
+                                            nextEntry = entries.get(i + 1);
+                                        }
+                                        String str = null;
+                                        if (nextEntry == null) {
+                                            str = finalStr.substring(currentEntry.getKey() - x);
+                                        } else {
+                                            str = finalStr.substring(currentEntry.getKey() - x, nextEntry.getKey() - x);
+                                        }
+                                        var originalStyle = currentEntry.getValue();
+                                        //is there any sense to create HyperLinkStyle from HyperLinkStyle?
+                                        //note, that this method will be called twice
+                                        if (!(originalStyle instanceof HyperlinkStyle)) {
+                                            originalStyle = new HyperlinkStyle(myHyperlinkColor.getForeground(),
+                                                    myHyperlinkColor.getBackground(), item.getLinkInfo(),
+                                                    myHighlightMode, originalStyle);
+                                        }
+                                        var charBuf = new CharBuffer(str);
+                                        line.writeString(currentEntry.getKey(), charBuf, originalStyle);
+                                    }
+                                } else {
+                                    var charBuf = new CharBuffer(finalStr);
+                                    line.writeString(x, charBuf, style);
+                                }
                             }
                             prevLinesLength += myTerminalTextBuffer.getWidth();
                         }
@@ -85,6 +119,29 @@ public class TextProcessing {
         } finally {
             myTerminalTextBuffer.unlock();
         }
+    }
+
+    private Map<Integer, TextStyle> getStylesByPostion(TerminalLine line, int x, int length) {
+        var treeMap = new TreeMap<Integer, TextStyle>();
+        var entriesLength = 0;
+        for (var e : line.getEntries()) {
+            treeMap.put(entriesLength, e.getStyle());
+            entriesLength += e.getLength();
+        }
+        Map<Integer, TextStyle> result = new LinkedHashMap<>();
+        int end = x + length - 1;
+        Map.Entry<Integer, TextStyle> entry = treeMap.floorEntry(x);
+        if (entry == null) {
+            return result;
+        }
+        result.put(x, entry.getValue());
+        while (entry != null && entry.getKey() <= end) {
+            if (!result.containsValue(entry.getValue())) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+            entry = treeMap.higherEntry(entry.getKey());
+        }
+        return result;
     }
 
     private int findHistoryLineInd(@NotNull LinesBuffer historyBuffer, @NotNull TerminalLine line) {

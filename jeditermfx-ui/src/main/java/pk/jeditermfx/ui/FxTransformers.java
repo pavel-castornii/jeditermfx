@@ -16,10 +16,10 @@ public final class FxTransformers {
     @Contract("null -> null; !null -> new")
     public static @Nullable Color fromFxColor(@Nullable javafx.scene.paint.Color color) {
         return color == null ? null : new Color(
-                (int) Math.round(color.getRed()),
-                (int) Math.round(color.getGreen()),
-                (int) Math.round(color.getBlue()),
-                (int) Math.round(color.getOpacity() * 255.0));
+                (int) Math.round(color.getRed() * 255),
+                (int) Math.round(color.getGreen() * 255),
+                (int) Math.round(color.getBlue() * 255),
+                (int) Math.round(color.getOpacity() * 255));
     }
 
     @Contract("null -> null; !null -> new")

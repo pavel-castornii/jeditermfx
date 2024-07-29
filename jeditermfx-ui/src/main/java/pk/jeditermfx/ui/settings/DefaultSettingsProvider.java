@@ -134,7 +134,7 @@ public class DefaultSettingsProvider implements SettingsProvider {
 
     @Override
     public HyperlinkStyle.HighlightMode getHyperlinkHighlightingMode() {
-        return HyperlinkStyle.HighlightMode.HOVER;
+        return HyperlinkStyle.HighlightMode.HOVER_WITH_BOTH_COLORS;
     }
 
     @Override

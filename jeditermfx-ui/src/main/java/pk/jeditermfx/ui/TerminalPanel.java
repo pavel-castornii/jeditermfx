@@ -498,7 +498,9 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
             }
         }
         myLinkHoverConsumer = linkHoverConsumer;
-        if (linkStyle != null && linkStyle.getHighlightMode() != HyperlinkStyle.HighlightMode.NEVER) {
+        if (linkStyle != null
+                && linkStyle.getHighlightMode() != HyperlinkStyle.HighlightMode.NEVER_WITH_ORIGINAL_COLOR
+                && linkStyle.getHighlightMode() != HyperlinkStyle.HighlightMode.NEVER_WITH_SPECIFIED_COLOR) {
             updateHoveredHyperlink(linkStyle.getLinkInfo());
         } else {
             updateHoveredHyperlink(null);
@@ -1356,13 +1358,45 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         double height = Math.min(myCharSize.getHeight() - (includeSpaceBetweenLines ? 0 : mySpaceBetweenLines),
                 this.canvas.getHeight() - yCoord);
         double width = Math.min(textLength * this.myCharSize.getWidth(), this.canvas.getWidth() - xCoord);
+        boolean shouldUnderline = style.hasOption(Option.UNDERLINED);
         if (style instanceof HyperlinkStyle) {
             HyperlinkStyle hyperlinkStyle = (HyperlinkStyle) style;
-            if (hyperlinkStyle.getHighlightMode() == HyperlinkStyle.HighlightMode.ALWAYS
-                    || (isHoveredHyperlink(hyperlinkStyle)
-                    && hyperlinkStyle.getHighlightMode() == HyperlinkStyle.HighlightMode.HOVER)) {
-                // substitute text style with the hyperlink highlight style if applicable
-                style = hyperlinkStyle.getHighlightStyle();
+            switch (mySettingsProvider.getHyperlinkHighlightingMode()) {
+                case ALWAYS_WITH_ORIGINAL_COLOR:
+                    style = hyperlinkStyle.getPrevTextStyle();
+                    shouldUnderline = true;
+                    break;
+                case ALWAYS_WITH_SPECIFIED_COLOR:
+                    style = hyperlinkStyle.getSpecifiedStyle();
+                    shouldUnderline = true;
+                    break;
+                case NEVER_WITH_ORIGINAL_COLOR:
+                    style = hyperlinkStyle.getPrevTextStyle();
+                    shouldUnderline = style.hasOption(Option.UNDERLINED);
+                    break;
+                case NEVER_WITH_SPECIFIED_COLOR:
+                    style = hyperlinkStyle.getSpecifiedStyle();
+                    shouldUnderline = hyperlinkStyle.getPrevTextStyle().hasOption(Option.UNDERLINED);
+                    break;
+                case HOVER_WITH_ORIGINAL_COLOR:
+                    style = hyperlinkStyle.getPrevTextStyle();
+                    shouldUnderline = (isHoveredHyperlink(hyperlinkStyle)) ? true : false;
+                    break;
+                case HOVER_WITH_SPECIFIED_COLOR:
+                    style = hyperlinkStyle.getSpecifiedStyle();
+                    shouldUnderline = (isHoveredHyperlink(hyperlinkStyle)) ? true : false;
+                    break;
+                case HOVER_WITH_BOTH_COLORS:
+                    if (isHoveredHyperlink(hyperlinkStyle)) {
+                        style = hyperlinkStyle.getSpecifiedStyle();
+                        shouldUnderline = true;
+                    } else {
+                        style = hyperlinkStyle.getPrevTextStyle();
+                        shouldUnderline = false;
+                    }
+                    break;
+                default:
+                    throw new AssertionError();
             }
         }
         javafx.scene.paint.Color backgroundColor = getEffectiveBackground(style);
@@ -1375,7 +1409,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         graphicsContext.setFill(color);
         graphicsContext.setStroke(color);
         drawChars(x, y, buf, style);
-        if (style.hasOption(TextStyle.Option.UNDERLINED)) {
+        if (shouldUnderline) {
             double baseLine = (y + 1) * myCharSize.getHeight() - mySpaceBetweenLines / 2 - myDescent;
             double lineY = baseLine + 3;
             graphicsContext.setLineWidth(1.0);

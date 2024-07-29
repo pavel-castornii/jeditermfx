@@ -13,7 +13,7 @@ public class HyperlinkStyle extends TextStyle {
     private final LinkInfo myLinkInfo;
 
     @NotNull
-    private final TextStyle myHighlightStyle;
+    private final TextStyle mySpecifiedStyle;
 
     @Nullable
     private final TextStyle myPrevTextStyle;
@@ -22,7 +22,8 @@ public class HyperlinkStyle extends TextStyle {
     private final HighlightMode myHighlightMode;
 
     public HyperlinkStyle(@NotNull TextStyle prevTextStyle, @NotNull LinkInfo hyperlinkInfo) {
-        this(prevTextStyle.getForeground(), prevTextStyle.getBackground(), hyperlinkInfo, HighlightMode.HOVER, prevTextStyle);
+        this(prevTextStyle.getForeground(), prevTextStyle.getBackground(), hyperlinkInfo,
+                HighlightMode.HOVER_WITH_SPECIFIED_COLOR, prevTextStyle);
     }
 
     public HyperlinkStyle(@Nullable TerminalColor foreground, @Nullable TerminalColor background,
@@ -35,7 +36,7 @@ public class HyperlinkStyle extends TextStyle {
                            @Nullable TerminalColor background, @NotNull LinkInfo hyperlinkInfo,
                            @NotNull HighlightMode mode, @Nullable TextStyle prevTextStyle) {
         super(keepColors ? foreground : null, keepColors ? background : null);
-        myHighlightStyle = new TextStyle.Builder()
+        mySpecifiedStyle = new TextStyle.Builder()
                 .setBackground(background)
                 .setForeground(foreground)
                 .setOption(Option.UNDERLINED, true)
@@ -51,8 +52,8 @@ public class HyperlinkStyle extends TextStyle {
     }
 
     @NotNull
-    public TextStyle getHighlightStyle() {
-        return myHighlightStyle;
+    public TextStyle getSpecifiedStyle() {
+        return mySpecifiedStyle;
     }
 
     @NotNull
@@ -72,7 +73,33 @@ public class HyperlinkStyle extends TextStyle {
     }
 
     public enum HighlightMode {
-        ALWAYS, NEVER, HOVER
+
+        ALWAYS_WITH_ORIGINAL_COLOR(true),
+
+        ALWAYS_WITH_SPECIFIED_COLOR(false),
+
+        NEVER_WITH_ORIGINAL_COLOR(true),
+
+        /**
+         * It requires original to resolve if it is required to underline.
+         */
+        NEVER_WITH_SPECIFIED_COLOR(true),
+
+        HOVER_WITH_ORIGINAL_COLOR(true),
+
+        HOVER_WITH_SPECIFIED_COLOR(false),
+
+        HOVER_WITH_BOTH_COLORS(true);
+
+        private final boolean originalColorUsed;
+
+        private HighlightMode(boolean originalColorUsed) {
+            this.originalColorUsed = originalColorUsed;
+        }
+
+        public boolean isOriginalColorUsed() {
+            return originalColorUsed;
+        }
     }
 
     public static class Builder extends TextStyle.Builder {
@@ -91,7 +118,7 @@ public class HyperlinkStyle extends TextStyle {
 
         private Builder(@NotNull HyperlinkStyle style) {
             myLinkInfo = style.myLinkInfo;
-            myHighlightStyle = style.myHighlightStyle;
+            myHighlightStyle = style.mySpecifiedStyle;
             myPrevTextStyle = style.myPrevTextStyle;
             myHighlightMode = style.myHighlightMode;
         }
