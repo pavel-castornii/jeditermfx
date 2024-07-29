@@ -1363,7 +1363,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
             HyperlinkStyle hyperlinkStyle = (HyperlinkStyle) style;
             switch (mySettingsProvider.getHyperlinkHighlightingMode()) {
                 case ALWAYS_WITH_ORIGINAL_COLOR:
-                    style = hyperlinkStyle.getOriginalStyle();
+                    style = provideOriginalStyle(hyperlinkStyle);
                     shouldUnderline = true;
                     break;
                 case ALWAYS_WITH_CUSTOM_COLOR:
@@ -1371,7 +1371,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
                     shouldUnderline = true;
                     break;
                 case NEVER_WITH_ORIGINAL_COLOR:
-                    style = hyperlinkStyle.getOriginalStyle();
+                    style = provideOriginalStyle(hyperlinkStyle);
                     shouldUnderline = style.hasOption(Option.UNDERLINED);
                     break;
                 case NEVER_WITH_CUSTOM_COLOR:
@@ -1379,7 +1379,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
                     shouldUnderline = hyperlinkStyle.getPrevTextStyle().hasOption(Option.UNDERLINED);
                     break;
                 case HOVER_WITH_ORIGINAL_COLOR:
-                    style = hyperlinkStyle.getOriginalStyle();
+                    style = provideOriginalStyle(hyperlinkStyle);
                     shouldUnderline = (isHoveredHyperlink(hyperlinkStyle)) ? true : false;
                     break;
                 case HOVER_WITH_CUSTOM_COLOR:
@@ -1391,7 +1391,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
                         style = hyperlinkStyle.getCustomStyle();
                         shouldUnderline = true;
                     } else {
-                        style = hyperlinkStyle.getOriginalStyle();
+                        style = provideOriginalStyle(hyperlinkStyle);
                         shouldUnderline = false;
                     }
                     break;
@@ -1414,6 +1414,19 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
             double lineY = baseLine + 3;
             graphicsContext.setLineWidth(1.0);
             graphicsContext.strokeLine(xCoord, lineY, (x + textLength) * myCharSize.getWidth() + getInsetX(), lineY);
+        }
+    }
+
+    /**
+     * When selection original style = null.
+     * @param link
+     * @return
+     */
+    private @NotNull TextStyle provideOriginalStyle(@NotNull HyperlinkStyle link) {
+        if (link.getOriginalStyle() != null) {
+            return link.getOriginalStyle();
+        } else {
+            return link;
         }
     }
 
