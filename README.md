@@ -51,11 +51,11 @@ This class contains the minimal code needed to launch a terminal in a JavaFX app
 
 ## Hyperlinks <a name="usage-hyperlinks"></a>
 
-JediTermFX provides a wide range of features when working with links. The HighlightMode enumeration specifies multiple
-modes of working with links and their colors. In the ALWAYS modes, links are always underlined and always clickable.
-In the NEVER modes, links are never underlined and never clickable. In the HOVER modes, links become underlined and
-clickable only when hovered over. Now let's clarify the difference between the two types of colors. SPECIFIED colors
-are those set by the JediTermFX user in the getHyperlinkColor() method of the settings. ORIGINAL colors are those
+JediTermFX provides a wide range of features when working with links. The `HighlightMode` enumeration specifies multiple
+modes of working with links and their colors. In the `ALWAYS` modes, links are always underlined and always clickable.
+In the `NEVER` modes, links are never underlined and never clickable. In the `HOVER` modes, links become underlined and
+clickable only when hovered over. Now let's clarify the difference between the two types of colors. `SPECIFIED` colors
+are those set by the JediTermFX user in the getHyperlinkColor() method of the settings. `ORIGINAL` colors are those
 offered by the program running in the terminal. Thus, links can use either custom colors or the original text colors.
 
 # Code Building <a name="code-building"></a>
