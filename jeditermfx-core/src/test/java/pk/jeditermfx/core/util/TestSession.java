@@ -30,7 +30,7 @@ public class TestSession {
         myStyleState = new StyleState();
         TextStyle hyperlinkTextStyle = new TextStyle(TerminalColor.fromColor(BLUE), TerminalColor.WHITE);
         myTextProcessing = new TextProcessing(hyperlinkTextStyle,
-                HyperlinkStyle.HighlightMode.ALWAYS_WITH_SPECIFIED_COLOR);
+                HyperlinkStyle.HighlightMode.ALWAYS_WITH_CUSTOM_COLOR);
         myTerminalTextBuffer = new TerminalTextBuffer(width, height, myStyleState, myTextProcessing);
         myTextProcessing.setTerminalTextBuffer(myTerminalTextBuffer);
         myTerminal = new BackBufferTerminal(myTerminalTextBuffer, myStyleState);

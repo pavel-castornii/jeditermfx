@@ -500,7 +500,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         myLinkHoverConsumer = linkHoverConsumer;
         if (linkStyle != null
                 && linkStyle.getHighlightMode() != HyperlinkStyle.HighlightMode.NEVER_WITH_ORIGINAL_COLOR
-                && linkStyle.getHighlightMode() != HyperlinkStyle.HighlightMode.NEVER_WITH_SPECIFIED_COLOR) {
+                && linkStyle.getHighlightMode() != HyperlinkStyle.HighlightMode.NEVER_WITH_CUSTOM_COLOR) {
             updateHoveredHyperlink(linkStyle.getLinkInfo());
         } else {
             updateHoveredHyperlink(null);
@@ -1366,29 +1366,29 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
                     style = hyperlinkStyle.getPrevTextStyle();
                     shouldUnderline = true;
                     break;
-                case ALWAYS_WITH_SPECIFIED_COLOR:
-                    style = hyperlinkStyle.getSpecifiedStyle();
+                case ALWAYS_WITH_CUSTOM_COLOR:
+                    style = hyperlinkStyle.getCustomStyle();
                     shouldUnderline = true;
                     break;
                 case NEVER_WITH_ORIGINAL_COLOR:
                     style = hyperlinkStyle.getPrevTextStyle();
                     shouldUnderline = style.hasOption(Option.UNDERLINED);
                     break;
-                case NEVER_WITH_SPECIFIED_COLOR:
-                    style = hyperlinkStyle.getSpecifiedStyle();
+                case NEVER_WITH_CUSTOM_COLOR:
+                    style = hyperlinkStyle.getCustomStyle();
                     shouldUnderline = hyperlinkStyle.getPrevTextStyle().hasOption(Option.UNDERLINED);
                     break;
                 case HOVER_WITH_ORIGINAL_COLOR:
                     style = hyperlinkStyle.getPrevTextStyle();
                     shouldUnderline = (isHoveredHyperlink(hyperlinkStyle)) ? true : false;
                     break;
-                case HOVER_WITH_SPECIFIED_COLOR:
-                    style = hyperlinkStyle.getSpecifiedStyle();
+                case HOVER_WITH_CUSTOM_COLOR:
+                    style = hyperlinkStyle.getCustomStyle();
                     shouldUnderline = (isHoveredHyperlink(hyperlinkStyle)) ? true : false;
                     break;
                 case HOVER_WITH_BOTH_COLORS:
                     if (isHoveredHyperlink(hyperlinkStyle)) {
-                        style = hyperlinkStyle.getSpecifiedStyle();
+                        style = hyperlinkStyle.getCustomStyle();
                         shouldUnderline = true;
                     } else {
                         style = hyperlinkStyle.getPrevTextStyle();
