@@ -21,20 +21,24 @@ public class HyperlinkStyle extends TextStyle {
     @NotNull
     private final HighlightMode myHighlightMode;
 
+    @Nullable
+    private final TextStyle myOriginalStyle;
+
     public HyperlinkStyle(@NotNull TextStyle prevTextStyle, @NotNull LinkInfo hyperlinkInfo) {
         this(prevTextStyle.getForeground(), prevTextStyle.getBackground(), hyperlinkInfo,
-                HighlightMode.HOVER_WITH_CUSTOM_COLOR, prevTextStyle);
+                HighlightMode.HOVER_WITH_CUSTOM_COLOR, prevTextStyle, null);
     }
 
     public HyperlinkStyle(@Nullable TerminalColor foreground, @Nullable TerminalColor background,
                           @NotNull LinkInfo hyperlinkInfo, @NotNull HighlightMode mode,
-                          @Nullable TextStyle prevTextStyle) {
-        this(false, foreground, background, hyperlinkInfo, mode, prevTextStyle);
+                          @Nullable TextStyle prevTextStyle, @Nullable TextStyle originalStyle) {
+        this(false, foreground, background, hyperlinkInfo, mode, prevTextStyle, originalStyle);
     }
 
     private HyperlinkStyle(boolean keepColors, @Nullable TerminalColor foreground,
                            @Nullable TerminalColor background, @NotNull LinkInfo hyperlinkInfo,
-                           @NotNull HighlightMode mode, @Nullable TextStyle prevTextStyle) {
+                           @NotNull HighlightMode mode, @Nullable TextStyle prevTextStyle,
+                           @Nullable TextStyle originalStyle) {
         super(keepColors ? foreground : null, keepColors ? background : null);
         myCustomStyle = new TextStyle.Builder()
                 .setBackground(background)
@@ -44,11 +48,17 @@ public class HyperlinkStyle extends TextStyle {
         myLinkInfo = hyperlinkInfo;
         myHighlightMode = mode;
         myPrevTextStyle = prevTextStyle;
+        myOriginalStyle = originalStyle;
     }
 
     @Nullable
     public TextStyle getPrevTextStyle() {
         return myPrevTextStyle;
+    }
+
+    @Nullable
+    public TextStyle getOriginalStyle() {
+        return myOriginalStyle;
     }
 
     @NotNull
@@ -137,7 +147,8 @@ public class HyperlinkStyle extends TextStyle {
                 foreground = style.getForeground() != null ? style.getForeground() : myHighlightStyle.getForeground();
                 background = style.getBackground() != null ? style.getBackground() : myHighlightStyle.getBackground();
             }
-            return new HyperlinkStyle(keepColors, foreground, background, myLinkInfo, myHighlightMode, myPrevTextStyle);
+            return new HyperlinkStyle(keepColors, foreground, background, myLinkInfo, myHighlightMode,
+                    myPrevTextStyle, null);
         }
     }
 }

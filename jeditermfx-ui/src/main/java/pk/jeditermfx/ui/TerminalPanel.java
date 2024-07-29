@@ -1363,7 +1363,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
             HyperlinkStyle hyperlinkStyle = (HyperlinkStyle) style;
             switch (mySettingsProvider.getHyperlinkHighlightingMode()) {
                 case ALWAYS_WITH_ORIGINAL_COLOR:
-                    style = hyperlinkStyle.getPrevTextStyle();
+                    style = hyperlinkStyle.getOriginalStyle();
                     shouldUnderline = true;
                     break;
                 case ALWAYS_WITH_CUSTOM_COLOR:
@@ -1371,7 +1371,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
                     shouldUnderline = true;
                     break;
                 case NEVER_WITH_ORIGINAL_COLOR:
-                    style = hyperlinkStyle.getPrevTextStyle();
+                    style = hyperlinkStyle.getOriginalStyle();
                     shouldUnderline = style.hasOption(Option.UNDERLINED);
                     break;
                 case NEVER_WITH_CUSTOM_COLOR:
@@ -1379,7 +1379,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
                     shouldUnderline = hyperlinkStyle.getPrevTextStyle().hasOption(Option.UNDERLINED);
                     break;
                 case HOVER_WITH_ORIGINAL_COLOR:
-                    style = hyperlinkStyle.getPrevTextStyle();
+                    style = hyperlinkStyle.getOriginalStyle();
                     shouldUnderline = (isHoveredHyperlink(hyperlinkStyle)) ? true : false;
                     break;
                 case HOVER_WITH_CUSTOM_COLOR:
@@ -1391,7 +1391,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
                         style = hyperlinkStyle.getCustomStyle();
                         shouldUnderline = true;
                     } else {
-                        style = hyperlinkStyle.getPrevTextStyle();
+                        style = hyperlinkStyle.getOriginalStyle();
                         shouldUnderline = false;
                     }
                     break;

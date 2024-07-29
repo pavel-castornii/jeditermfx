@@ -70,7 +70,7 @@ public class TextProcessing {
                 if (result != null) {
                     for (LinkResultItem item : result.getItems()) {
                         TextStyle style = new HyperlinkStyle(myHyperlinkColor.getForeground(),
-                                myHyperlinkColor.getBackground(), item.getLinkInfo(), myHighlightMode, null);
+                                myHyperlinkColor.getBackground(), item.getLinkInfo(), myHighlightMode, null, null);
                         if (item.getStartOffset() < 0 || item.getEndOffset() > lineStr.length()) continue;
                         int prevLinesLength = 0;
                         for (int lineInd = startLineInd; lineInd <= updatedLineInd; lineInd++) {
@@ -101,7 +101,7 @@ public class TextProcessing {
                                         if (!(originalStyle instanceof HyperlinkStyle)) {
                                             originalStyle = new HyperlinkStyle(myHyperlinkColor.getForeground(),
                                                     myHyperlinkColor.getBackground(), item.getLinkInfo(),
-                                                    myHighlightMode, originalStyle);
+                                                    myHighlightMode, null, originalStyle);
                                         }
                                         var charBuf = new CharBuffer(str);
                                         line.writeString(currentEntry.getKey(), charBuf, originalStyle);
