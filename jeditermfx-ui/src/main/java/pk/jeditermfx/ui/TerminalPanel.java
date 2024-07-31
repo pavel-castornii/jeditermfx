@@ -236,11 +236,11 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         return pane;
     }
 
-    ScrollBar getScrollBar() {
+    public ScrollBar getScrollBar() {
         return this.scrollBar;
     }
 
-    Canvas getCanvas() {
+    public Canvas getCanvas() {
         return canvas;
     }
 
