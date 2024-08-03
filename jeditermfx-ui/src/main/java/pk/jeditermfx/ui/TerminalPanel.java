@@ -35,6 +35,12 @@ import javafx.event.ActionEvent;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
@@ -156,7 +162,9 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
 
     private Point mySelectionStartPoint = null;
 
-    private TerminalSelection mySelection = null;
+    private final ReadOnlyObjectWrapper<TerminalSelection> mySelection = new ReadOnlyObjectWrapper<>(null);
+
+    private final ReadOnlyStringWrapper selectedText = new ReadOnlyStringWrapper(null);
 
     private final TerminalCopyPasteHandler myCopyPasteHandler;
 
@@ -230,6 +238,14 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         terminalTextBuffer.addModelListener(() -> repaint());
         terminalTextBuffer.addTypeAheadModelListener(() -> repaint());
         terminalTextBuffer.addHistoryBufferListener(() -> myHistoryBufferLineCountChanged.set(true));
+    }
+
+    public ReadOnlyObjectProperty<TerminalSelection> selectionProperty() {
+        return mySelection.getReadOnlyProperty();
+    }
+
+    public ReadOnlyStringProperty selectedTextProperty() {
+        return selectedText.getReadOnlyProperty();
     }
 
     public Pane getPane() {
@@ -321,13 +337,16 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
             if (e.getButton() == MouseButton.PRIMARY) {
                 if (e.getClickCount() == 1) {
                     mySelectionStartPoint = panelToCharCoords(createPoint(e));
-                    mySelection = null;
+                    doOnTextUnselected();
                     repaint();
                 }
             }
         });
         this.canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> {
             this.canvas.requestFocus();
+            if (mySelection.get() != null) {
+                doOnTextSelected();
+            }
             repaint();
         });
         this.canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
@@ -364,15 +383,15 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
             return;
         }
         final Point charCoords = panelToCharCoords(createPoint(e));
-        if (mySelection == null) {
+        if (mySelection.get() == null) {
             // prevent unlikely case where drag started outside terminal panel
             if (mySelectionStartPoint == null) {
                 mySelectionStartPoint = charCoords;
             }
-            mySelection = new TerminalSelection(new Point(mySelectionStartPoint));
+            mySelection.set(new TerminalSelection(new Point(mySelectionStartPoint)));
         }
         repaint();
-        mySelection.updateEnd(charCoords);
+        mySelection.get().updateEnd(charCoords);
         if (mySettingsProvider.copyOnSelect()) {
             handleCopyOnSelect();
         }
@@ -403,8 +422,9 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
                 final Point charCoords = panelToCharCoords(point);
                 Point start = SelectionUtil.getPreviousSeparator(charCoords, myTerminalTextBuffer);
                 Point stop = SelectionUtil.getNextSeparator(charCoords, myTerminalTextBuffer);
-                mySelection = new TerminalSelection(start);
-                mySelection.updateEnd(stop);
+                mySelection.set(new TerminalSelection(start));
+                mySelection.get().updateEnd(stop);
+                doOnTextSelected();
                 if (mySettingsProvider.copyOnSelect()) {
                     handleCopyOnSelect();
                 }
@@ -421,8 +441,9 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
                         && myTerminalTextBuffer.getLine(endLine).isWrapped()) {
                     endLine++;
                 }
-                mySelection = new TerminalSelection(new Point(0, startLine));
-                mySelection.updateEnd(new Point(myTermSize.getColumns(), endLine));
+                mySelection.set(new TerminalSelection(new Point(0, startLine)));
+                mySelection.get().updateEnd(new Point(myTermSize.getColumns(), endLine));
+                doOnTextSelected();
                 if (mySettingsProvider.copyOnSelect()) {
                     handleCopyOnSelect();
                 }
@@ -610,12 +631,14 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         int screenLineCount = getTerminalTextBuffer().getScreenLinesCount();
         if (myFindResult != null && !myFindResult.getItems().isEmpty()) {
             FindItem item = next ? myFindResult.nextFindItem() : myFindResult.prevFindItem();
-            mySelection = new TerminalSelection(new Point(item.getStart().x,
+            var selection = new TerminalSelection(new Point(item.getStart().x,
                     item.getStart().y - myTerminalTextBuffer.getHistoryLinesCount()),
                     new Point(item.getEnd().x, item.getEnd().y - myTerminalTextBuffer.getHistoryLinesCount()));
+            mySelection.set(selection);
+            doOnTextSelected();
             logger.debug("Find selection start: {} / {}, end: {} / {}", item.getStart().x, item.getStart().y,
                     item.getEnd().x, item.getEnd().y);
-            if (mySelection.getStart().y < getTerminalTextBuffer().getHeight() / 2) {
+            if (mySelection.get().getStart().y < getTerminalTextBuffer().getHeight() / 2) {
                 var value = FxScrollBarUtils.getValueFor(item.getStart().y, historyLineCount + screenLineCount,
                         scrollBar.getMin(), scrollBar.getMax());
                 this.scrollBar.setValue(value);
@@ -737,9 +760,9 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         if (selectionStart == null || selectionEnd == null) {
             return;
         }
-        String selectionText = SelectionUtil.getSelectionText(selectionStart, selectionEnd, myTerminalTextBuffer);
-        if (selectionText.length() != 0) {
-            myCopyPasteHandler.setContents(selectionText, useSystemSelectionClipboardIfAvailable);
+        String selectedText = SelectionUtil.getSelectedText(selectionStart, selectionEnd, myTerminalTextBuffer);
+        if (selectedText.length() != 0) {
+            myCopyPasteHandler.setContents(selectedText, useSystemSelectionClipboardIfAvailable);
         }
     }
 
@@ -901,8 +924,9 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
                                     }
                                 }
                             }
-                            if (mySelection != null) {
-                                Pair<Integer, Integer> interval = mySelection.intersect(x, row + swingClientScrollOrigin, characters.length());
+                            if (mySelection.get() != null) {
+                                Pair<Integer, Integer> interval = mySelection.get()
+                                        .intersect(x, row + swingClientScrollOrigin, characters.length());
                                 if (interval != null) {
                                     TextStyle selectionStyle = getSelectionStyle(style);
                                     CharBuffer selectionChars = characters.subBuffer(interval.getFirst() - x, interval.getSecond());
@@ -915,10 +939,10 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
                         @Override
                         public void consumeNul(int x, int y, int nulIndex, TextStyle style, CharBuffer characters, int startRow) {
                             int row = y - startRow;
-                            if (mySelection != null) {
+                            if (mySelection.get() != null) {
                                 // compute intersection with all NUL areas, non-breaking
-                                Pair<Integer, Integer> interval =
-                                        mySelection.intersect(nulIndex, row + swingClientScrollOrigin, columnCount - nulIndex);
+                                Pair<Integer, Integer> interval = mySelection.get()
+                                        .intersect(nulIndex, row + swingClientScrollOrigin, columnCount - nulIndex);
                                 if (interval != null) {
                                     TextStyle selectionStyle = getSelectionStyle(style);
                                     drawCharacters(x, row, selectionStyle, characters);
@@ -1048,7 +1072,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
     }
 
     private boolean inSelection(int x, int y) {
-        return mySelection != null && mySelection.contains(new Point(x, y));
+        return mySelection.get() != null && mySelection.get().contains(new Point(x, y));
     }
 
     public int getPixelWidth() {
@@ -1134,7 +1158,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         });
         this.canvas.addEventHandler(ScrollEvent.SCROLL, e -> {
             if (mySettingsProvider.enableMouseReporting() && isRemoteMouseAction(e)) {
-                mySelection = null;
+                doOnTextUnselected();
                 Point p = panelToCharCoords(createPoint(e));
                 listener.mouseWheelMoved(p.x, p.y, new FxMouseWheelEvent(e));
             }
@@ -1600,7 +1624,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
     @Override
     public void scrollArea(final int scrollRegionTop, final int scrollRegionSize, int dy) {
         scrollDy.addAndGet(dy);
-        mySelection = null;
+        doOnTextUnselected();
     }
 
     // should be called on EDT
@@ -1713,7 +1737,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
 
     @Override
     public @Nullable TerminalSelection getSelection() {
-        return mySelection;
+        return mySelection.get();
     }
 
     @Override
@@ -1798,11 +1822,11 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         return List.of(
                 new TerminalAction(mySettingsProvider.getOpenUrlActionPresentation(), input -> {
                     return openSelectionAsURL();
-                }).withEnabledSupplier(this::selectionTextIsUrl),
+                }).withEnabledSupplier(this::selectedTextIsUrl),
                 new TerminalAction(mySettingsProvider.getCopyActionPresentation(), this::handleCopy) {
                     @Override
                     public boolean isEnabled(@Nullable KeyEvent e) {
-                        return e != null || mySelection != null;
+                        return e != null || mySelection.get() != null;
                     }
                 }.withMnemonicKey(KeyCode.C),
                 new TerminalAction(mySettingsProvider.getPasteActionPresentation(), input -> {
@@ -1837,16 +1861,18 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
     }
 
     public void selectAll() {
-        mySelection = new TerminalSelection(new Point(0, -myTerminalTextBuffer.getHistoryLinesCount()),
+        var selection = new TerminalSelection(new Point(0, -myTerminalTextBuffer.getHistoryLinesCount()),
                 new Point(myTermSize.getColumns(), myTerminalTextBuffer.getScreenLinesCount()));
+        mySelection.set(selection);
+        doOnTextSelected();
     }
 
     @NotNull
-    private Boolean selectionTextIsUrl() {
-        String selectionText = getSelectionText();
-        if (selectionText != null) {
+    private Boolean selectedTextIsUrl() {
+        String selectedText = getSelectedText();
+        if (selectedText != null) {
             try {
-                URI uri = new URI(selectionText);
+                URI uri = new URI(selectedText);
                 //noinspection ResultOfMethodCallIgnored
                 uri.toURL();
                 return true;
@@ -1858,12 +1884,12 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
     }
 
     @Nullable
-    private String getSelectionText() {
-        if (mySelection != null) {
-            Pair<Point, Point> points = mySelection.pointsForRun(myTermSize.getColumns());
+    private String getSelectedText() {
+        if (mySelection.get() != null) {
+            Pair<Point, Point> points = mySelection.get().pointsForRun(myTermSize.getColumns());
             if (points.getFirst() != null || points.getSecond() != null) {
                 return SelectionUtil
-                        .getSelectionText(points.getFirst(), points.getSecond(), myTerminalTextBuffer);
+                        .getSelectedText(points.getFirst(), points.getSecond(), myTerminalTextBuffer);
             }
         }
         return null;
@@ -1872,9 +1898,9 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
     protected boolean openSelectionAsURL() {
         if (Desktop.isDesktopSupported()) {
             try {
-                String selectionText = getSelectionText();
-                if (selectionText != null) {
-                    Desktop.getDesktop().browse(new URI(selectionText));
+                String selectedText = getSelectedText();
+                if (selectedText != null) {
+                    Desktop.getDesktop().browse(new URI(selectedText));
                 }
             } catch (Exception e) {
                 //ok then
@@ -2053,11 +2079,11 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
      * @param useSystemSelectionClipboardIfAvailable true to use {@link Toolkit#getSystemSelection()} if available
      */
     private void handleCopy(boolean unselect, boolean useSystemSelectionClipboardIfAvailable) {
-        if (mySelection != null) {
-            Pair<Point, Point> points = mySelection.pointsForRun(myTermSize.getColumns());
+        if (mySelection.get() != null) {
+            Pair<Point, Point> points = mySelection.get().pointsForRun(myTermSize.getColumns());
             copySelection(points.getFirst(), points.getSecond(), useSystemSelectionClipboardIfAvailable);
             if (unselect) {
-                mySelection = null;
+                doOnTextUnselected();
                 repaint();
             }
         }
@@ -2066,7 +2092,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
     private boolean handleCopy(@Nullable KeyEvent e) {
         boolean ctrlC = e != null && e.getCode() == KeyCode.C && e.isControlDown()
                 && !e.isAltDown() && !e.isMetaDown() && !e.isShiftDown();
-        boolean sendCtrlC = ctrlC && mySelection == null;
+        boolean sendCtrlC = ctrlC && mySelection.get() == null;
         handleCopy(ctrlC, false);
         return !sendCtrlC;
     }
@@ -2190,5 +2216,14 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
             modifiers |= InputEvent.META_DOWN_MASK;
         }
         return modifiers;
+    }
+
+    private void doOnTextSelected() {
+        selectedText.set(getSelectedText());
+    }
+
+    private void doOnTextUnselected() {
+        mySelection.set(null);
+        selectedText.set(null);
     }
 }
