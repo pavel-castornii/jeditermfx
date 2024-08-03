@@ -39,39 +39,39 @@ public class SelectionUtil {
         }
     }
 
-    public static String getSelectionText(TerminalSelection selection, TerminalTextBuffer terminalTextBuffer) {
-        return getSelectionText(selection.getStart(), selection.getEnd(), terminalTextBuffer);
+    public static String getSelectedText(TerminalSelection selection, TerminalTextBuffer terminalTextBuffer) {
+        return getSelectedText(selection.getStart(), selection.getEnd(), terminalTextBuffer);
     }
 
     @NotNull
-    public static String getSelectionText(@NotNull Point selectionStart, @NotNull Point selectionEnd,
+    public static String getSelectedText(@NotNull Point selectionStart, @NotNull Point selectionEnd,
                                           @NotNull TerminalTextBuffer terminalTextBuffer) {
         Pair<Point, Point> pair = sortPoints(selectionStart, selectionEnd);
         pair.getFirst().y = Math.max(pair.getFirst().y, -terminalTextBuffer.getHistoryLinesCount());
         pair = sortPoints(pair.getFirst(), pair.getSecond()); // previous line may have changed the order
         Point top = pair.getFirst();
         Point bottom = pair.getSecond();
-        final StringBuilder selectionText = new StringBuilder();
+        final StringBuilder selectedText = new StringBuilder();
         for (int i = top.y; i <= bottom.y; i++) {
             TerminalLine line = terminalTextBuffer.getLine(i);
             String text = line.getText();
             if (i == top.y) {
                 if (i == bottom.y) {
-                    selectionText.append(processForSelection(text.substring(Math.min(text.length(), top.x),
+                    selectedText.append(processForSelection(text.substring(Math.min(text.length(), top.x),
                             Math.min(text.length(), bottom.x))));
                 } else {
-                    selectionText.append(processForSelection(text.substring(Math.min(text.length(), top.x))));
+                    selectedText.append(processForSelection(text.substring(Math.min(text.length(), top.x))));
                 }
             } else if (i == bottom.y) {
-                selectionText.append(processForSelection(text.substring(0, Math.min(text.length(), bottom.x))));
+                selectedText.append(processForSelection(text.substring(0, Math.min(text.length(), bottom.x))));
             } else {
-                selectionText.append(processForSelection(line.getText()));
+                selectedText.append(processForSelection(line.getText()));
             }
             if ((!line.isWrapped() && i < bottom.y) || bottom.x > text.length()) {
-                selectionText.append("\n");
+                selectedText.append("\n");
             }
         }
-        return selectionText.toString();
+        return selectedText.toString();
     }
 
     private static String processForSelection(String text) {

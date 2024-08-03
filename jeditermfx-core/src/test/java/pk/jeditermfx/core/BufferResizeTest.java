@@ -216,19 +216,19 @@ public class BufferResizeTest {
         }
         terminal.writeString(">");
         display.setSelection(new TerminalSelection(new Point(1, 0), new Point(5, 1)));
-        String selectionText = SelectionUtil.getSelectionText(display.getSelection(), textBuffer);
+        String selectedText = SelectionUtil.getSelectedText(display.getSelection(), textBuffer);
         assertEquals("line4\n" +
-                ">line", selectionText);
+                ">line", selectedText);
         session.assertCursorPosition(2, 3);
         terminal.resize(new TermSize(6, 5), RequestOrigin.User);
-        assertEquals(selectionText, SelectionUtil.getSelectionText(display.getSelection(), textBuffer));
+        assertEquals(selectedText, SelectionUtil.getSelectedText(display.getSelection(), textBuffer));
         display.setSelection(new TerminalSelection(new Point(1, -2), new Point(5, -1)));
-        selectionText = SelectionUtil.getSelectionText(display.getSelection(), textBuffer);
+        selectedText = SelectionUtil.getSelectedText(display.getSelection(), textBuffer);
         assertEquals("line2\n" +
-                ">line", selectionText);
+                ">line", selectedText);
         session.assertCursorPosition(2, 3);
         terminal.resize(new TermSize(6, 2), RequestOrigin.User);
-        assertEquals(selectionText, SelectionUtil.getSelectionText(display.getSelection(), textBuffer));
+        assertEquals(selectedText, SelectionUtil.getSelectedText(display.getSelection(), textBuffer));
         session.assertCursorPosition(2, 2);
     }
 

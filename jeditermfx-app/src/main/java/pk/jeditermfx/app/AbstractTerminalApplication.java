@@ -140,8 +140,8 @@ public abstract class AbstractTerminalApplication extends Application {
             TerminalSelection selection = terminalPanel.getSelection();
             if (selection != null) {
                 Pair<Point, Point> points = selection.pointsForRun(widget.getTerminal().getTerminalWidth());
-                logger.info(selection + " : '"
-                        + SelectionUtil.getSelectionText(points.getFirst(), points.getSecond(), terminalPanel.getTerminalTextBuffer()) + "'");
+                logger.info(selection + " : '" + SelectionUtil.getSelectedText(points.getFirst(), points.getSecond(),
+                                terminalPanel.getTerminalTextBuffer()) + "'");
             } else {
                 logger.info("No selection");
             }
