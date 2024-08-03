@@ -18,6 +18,7 @@ import javafx.scene.text.Font;
 import javafx.scene.input.MouseEvent;
 import java.lang.ref.WeakReference;
 import java.awt.Desktop;
+import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.InputMethodEvent;
@@ -35,12 +36,10 @@ import javafx.event.ActionEvent;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
@@ -709,19 +708,19 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         }
     }
 
-    private void pageUp() {
+    public void pageUp() {
         moveScrollBar(-myTermSize.getRows());
     }
 
-    private void pageDown() {
+    public void pageDown() {
         moveScrollBar(myTermSize.getRows());
     }
 
-    private void scrollUp() {
+    public void scrollUp() {
         moveScrollBar(-1);
     }
 
-    private void scrollDown() {
+    public void scrollDown() {
         moveScrollBar(1);
     }
 
@@ -1821,8 +1820,8 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
     public List<TerminalAction> getActions() {
         return List.of(
                 new TerminalAction(mySettingsProvider.getOpenUrlActionPresentation(), input -> {
-                    return openSelectionAsURL();
-                }).withEnabledSupplier(this::selectedTextIsUrl),
+                    return openSelectedTextAsURL();
+                }).withEnabledSupplier(this::isSelectedTextUrl),
                 new TerminalAction(mySettingsProvider.getCopyActionPresentation(), this::handleCopy) {
                     @Override
                     public boolean isEnabled(@Nullable KeyEvent e) {
@@ -1868,7 +1867,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
     }
 
     @NotNull
-    private Boolean selectedTextIsUrl() {
+    public boolean isSelectedTextUrl() {
         String selectedText = getSelectedText();
         if (selectedText != null) {
             try {
@@ -1895,12 +1894,18 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         return null;
     }
 
-    protected boolean openSelectionAsURL() {
+    public boolean openSelectedTextAsURL() {
         if (Desktop.isDesktopSupported()) {
             try {
                 String selectedText = getSelectedText();
                 if (selectedText != null) {
-                    Desktop.getDesktop().browse(new URI(selectedText));
+                    EventQueue.invokeLater(() -> {
+                        try {
+                            Desktop.getDesktop().browse(new URI(selectedText));
+                        } catch (Exception ex) {
+                            logger.error("Error opening url: {}", selectedText, ex);
+                        }
+                    });
                 }
             } catch (Exception e) {
                 //ok then
@@ -2064,7 +2069,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         return false;
     }
 
-    private void handlePaste() {
+    public void handlePaste() {
         pasteFromClipboard(false);
     }
 
@@ -2078,7 +2083,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
      * @param unselect                               true to unselect currently selected text
      * @param useSystemSelectionClipboardIfAvailable true to use {@link Toolkit#getSystemSelection()} if available
      */
-    private void handleCopy(boolean unselect, boolean useSystemSelectionClipboardIfAvailable) {
+    public void handleCopy(boolean unselect, boolean useSystemSelectionClipboardIfAvailable) {
         if (mySelection.get() != null) {
             Pair<Point, Point> points = mySelection.get().pointsForRun(myTermSize.getColumns());
             copySelection(points.getFirst(), points.getSecond(), useSystemSelectionClipboardIfAvailable);
