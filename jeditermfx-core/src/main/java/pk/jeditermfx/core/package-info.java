@@ -1,2 +1,0 @@
-
-package pk.jeditermfx.core;

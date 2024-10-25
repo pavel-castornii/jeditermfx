@@ -210,7 +210,7 @@ DEFAULT_JVM_OPTS=""
 
 set -- \
         --module-path "$MODULEPATH" \
-        -m pk.jeditermfx.app/pk.jeditermfx.app.JediTermFxMain \
+        -m com.techsenger.jeditermfx.app/com.techsenger.jeditermfx.app.JediTermFxMain \
         "$@"
 
 # Stop when "xargs" is not available.

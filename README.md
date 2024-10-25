@@ -1,4 +1,4 @@
-# JediTermFX
+# Techsenger JediTermFX
 * [Overview](#overview)
 * [Demo](#demo)
 * [Features](#features)
@@ -14,7 +14,7 @@
 
 # Overview <a name="overview"></a>
 
-JediTermFX is a Terminal Emulator for JavaFX. The project is a result of porting
+Techsenger JediTermFX is a Terminal Emulator for JavaFX. The project is a result of porting
 [JediTerm](https://github.com/JetBrains/jediterm) (commit 8366f2b) from Swing to JavaFX. JediTermFX exclusively
 utilizes JavaFX components. Therefore, the Terminal Emulator based on this library can be seamlessly integrated into
 any JavaFX application. A detailed comparison of terminal libraries is provided below.
@@ -46,7 +46,7 @@ JPMS Support  | Yes         | No            | Yes           |
 # Usage <a name="usage"></a>
 
 It is recommended to start working with JediTermFX by studying and running the
-[BasicTerminalShellExample](jeditermfx-app/src/main/java/pk/jeditermfx/app/example/BasicTerminalShellExample.java) class.
+[BasicTerminalShellExample](jeditermfx-app/src/main/java/com/techsenger/jeditermfx/app/example/BasicTerminalShellExample.java) class.
 This class contains the minimal code needed to launch a terminal in a JavaFX application.
 
 ## Hyperlinks <a name="usage-hyperlinks"></a>
@@ -62,7 +62,7 @@ offered by the program running in the terminal. Thus, links can use either custo
 
 To build the library use standard Git and Maven commands:
 
-    git clone https://github.com/PavelKastornyy/jeditermfx
+    git clone https://github.com/techsenger/jeditermfx
     cd jeditermfx
     mvn clean install
 
@@ -87,7 +87,7 @@ scripts depending on your operating system.
 
 # License <a name="license"></a>
 
-JediTermFX is dual-licensed under both the LGPLv3 (found in the LICENSE-LGPLv3.txt file in the root directory) and
+JediTermFX is dual-licensed under both the LGPLv3 (found in the LICENSE-LGPL-3.txt file in the root directory) and
 Apache 2.0 License (found in the LICENSE-APACHE-2.0.txt file in the root directory). You may select, at your option,
 one of the above-listed licenses.
 

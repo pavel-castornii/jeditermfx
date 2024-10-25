@@ -2,23 +2,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>pk.jeditermfx</groupId>
+        <groupId>com.techsenger.jeditermfx</groupId>
         <artifactId>jeditermfx</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <groupId>pk.jeditermfx</groupId>
+    <groupId>com.techsenger.jeditermfx</groupId>
     <artifactId>jeditermfx-ui</artifactId>
     <packaging>jar</packaging>
-    <name>JediTermFX - UI</name>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <name>Techsenger JediTermFX - UI</name>
 
     <dependencies>
         <dependency>
-            <groupId>pk.jeditermfx</groupId>
+            <groupId>com.techsenger.jeditermfx</groupId>
             <artifactId>jeditermfx-core</artifactId>
         </dependency>
         <dependency>
@@ -32,14 +28,17 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

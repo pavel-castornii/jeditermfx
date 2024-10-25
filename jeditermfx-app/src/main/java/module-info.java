@@ -1,7 +1,7 @@
 
-module pk.jeditermfx.app {
-    requires pk.jeditermfx.core;
-    requires pk.jeditermfx.ui;
+module com.techsenger.jeditermfx.app {
+    requires com.techsenger.jeditermfx.core;
+    requires com.techsenger.jeditermfx.ui;
     requires kotlin.stdlib;
     requires pty4j;
     requires purejavacomm;
@@ -13,6 +13,6 @@ module pk.jeditermfx.app {
     requires javafx.graphics;
     requires javafx.controls;
 
-    exports pk.jeditermfx.app;
-    exports pk.jeditermfx.app.example;
+    exports com.techsenger.jeditermfx.app;
+    exports com.techsenger.jeditermfx.app.example;
 }
