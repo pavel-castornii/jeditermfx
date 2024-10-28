@@ -10,13 +10,20 @@
     <groupId>com.techsenger.jeditermfx</groupId>
     <artifactId>jeditermfx-app</artifactId>
     <packaging>jar</packaging>
-    <name>Techsenger JediTermFX - Application</name>
+    <name>Techsenger JediTermFX - App</name>
 
     <properties>
         <javafx.classifier>linux</javafx.classifier>
+        <assembly.plugin.skip>false</assembly.plugin.skip>
     </properties>
 
     <profiles>
+        <profile>
+            <id>release</id>
+            <properties>
+                <assembly.plugin.skip>true</assembly.plugin.skip>
+            </properties>
+        </profile>
         <profile>
             <id>mac</id>
             <activation>
@@ -122,41 +129,16 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${resources.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/scripts</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/resources</directory>
-                                    <filtering>true</filtering>
-                                    <includes>
-                                        <include>jeditermfx.sh</include>
-                                        <include>jeditermfx.bat</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>${assembly.plugin.version}</version>
                 <configuration>
                     <descriptors>
                         <descriptor>assembly.xml</descriptor>
                     </descriptors>
-                    <finalName>jeditermfx-${project.version}</finalName>
+                    <finalName>jeditermfx-app-${project.version}</finalName>
                     <outputDirectory>target</outputDirectory>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <skipAssembly>${assembly.plugin.skip}</skipAssembly>
                 </configuration>
                 <executions>
                     <execution>

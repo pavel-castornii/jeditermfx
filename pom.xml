@@ -13,17 +13,6 @@
     <packaging>pom</packaging>
     <name>Techsenger JediTermFX</name>
 
-    <properties>
-        <maven.compiler.release>14</maven.compiler.release>
-        <!-- dependencies -->
-        <jna.version>5.13.0</jna.version>
-        <purejavacomm.version>0.0.11.1</purejavacomm.version>
-        <kotlin.version>1.9.22</kotlin.version>
-        <annotations.version>24.0.1</annotations.version>
-        <pty4j.version>0.12.25</pty4j.version>
-        <javafx.version>14</javafx.version>
-    </properties>
-
     <licenses>
         <license>
             <name>Apache 2.0 License</name>
@@ -36,10 +25,24 @@
     </licenses>
 
     <url>https://github.com/techsenger/jeditermfx</url>
+
+    <scm>
+        <url>https://github.com/techsenger/jeditermfx.git</url>
+        <connection>scm:git:https://github.com/techsenger/jeditermfx.git</connection>
+        <developerConnection>scm:git:https://github.com/techsenger/jeditermfx.git</developerConnection>
+    </scm>
+
     <issueManagement>
         <system>GitHub</system>
         <url>https://github.com/techsenger/jeditermfx/issues</url>
     </issueManagement>
+
+    <developers>
+        <developer>
+            <id>pavel-castornii</id>
+            <name>Pavel Castornii</name>
+        </developer>
+    </developers>
 
     <repositories>
         <repository>
@@ -47,6 +50,18 @@
             <url>https://packages.jetbrains.team/maven/p/ij/intellij-dependencies</url>
         </repository>
     </repositories>
+
+    <properties>
+        <maven.compiler.release>14</maven.compiler.release>
+        <checkstyle.plugin.skip>true</checkstyle.plugin.skip>
+        <!-- dependencies -->
+        <jna.version>5.13.0</jna.version>
+        <purejavacomm.version>0.0.11.1</purejavacomm.version>
+        <kotlin.version>1.9.22</kotlin.version>
+        <annotations.version>24.0.1</annotations.version>
+        <pty4j.version>0.12.25</pty4j.version>
+        <javafx.version>14</javafx.version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -105,19 +120,6 @@
         <module>jeditermfx-ui</module>
         <module>jeditermfx-app</module>
     </modules>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${checkstyle.plugin.version}</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
 
 

@@ -4,6 +4,7 @@
 * [Features](#features)
 * [Terminal Comparison](#comparison)
 * [Usage](#usage)
+    * [Dependencies](#usage-dependencies)
     * [Hyperlinks](#usage-hyperlinks)
 * [Code building](#code-building)
 * [Running the Application](#application)
@@ -49,6 +50,30 @@ It is recommended to start working with JediTermFX by studying and running the
 [BasicTerminalShellExample](jeditermfx-app/src/main/java/com/techsenger/jeditermfx/app/example/BasicTerminalShellExample.java) class.
 This class contains the minimal code needed to launch a terminal in a JavaFX application.
 
+## Dependencies <a name="usage-dependencies"></a>
+
+This project is available on Maven Central:
+
+```
+<!-- main modules -->
+<dependency>
+    <groupId>com.techsenger.jeditermfx</groupId>
+    <artifactId>jeditermfx-core</artifactId>
+    <version>${jeditermfx.version}</version>
+</dependency>
+<dependency>
+    <groupId>com.techsenger.jeditermfx</groupId>
+    <artifactId>jeditermfx-ui</artifactId>
+    <version>${jeditermfx.version}</version>
+</dependency>
+<!-- example and debug application -->
+<dependency>
+    <groupId>com.techsenger.jeditermfx</groupId>
+    <artifactId>jeditermfx-app</artifactId>
+    <version>${jeditermfx.version}</version>
+</dependency>
+```
+
 ## Hyperlinks <a name="usage-hyperlinks"></a>
 
 JediTermFX provides a wide range of features when working with links. The `HighlightMode` enumeration specifies multiple
@@ -81,9 +106,9 @@ Please note, that debugger settings are in `jeditermfx-app/pom.xml` file.
 
 ## Using Distro <a name="application-distro"></a>
 
-After building the project, you will find a distribution archive named `jeditermfx-version-app.tar` in the
-`jeditermfx-app/target` directory. Extracting this file will allow you to launch the application using `.sh` or `.bat`
-scripts depending on your operating system.
+After building the project, you will find a distribution archive named `jeditermfx-app-<version>.tar` in the
+`jeditermfx-app/target` directory. Extracting this file will allow you to launch the application
+using `.sh` or `.bat` scripts depending on your operating system.
 
 # License <a name="license"></a>
 

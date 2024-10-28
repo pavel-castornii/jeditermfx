@@ -6,12 +6,12 @@
     <formats>
         <format>tar</format>
     </formats>
-    <baseDirectory>jeditermfx-${project.version}</baseDirectory>
+    <baseDirectory>jeditermfx-app-${project.version}</baseDirectory>
     <includeBaseDirectory>true</includeBaseDirectory>
     <fileSets>
         <fileSet>
             <outputDirectory>/bin</outputDirectory>
-            <directory>target/scripts</directory>
+            <directory>${project.basedir}/scripts</directory>
             <fileMode>755</fileMode>
         </fileSet>
     </fileSets>
