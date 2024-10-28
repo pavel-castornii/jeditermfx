@@ -11,6 +11,7 @@
     <artifactId>jeditermfx-core</artifactId>
     <packaging>jar</packaging>
     <name>Techsenger JediTermFX - Core</name>
+    <description>The core of the emulator</description>
 
     <dependencies>
         <dependency>

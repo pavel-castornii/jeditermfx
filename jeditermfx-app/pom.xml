@@ -11,6 +11,7 @@
     <artifactId>jeditermfx-app</artifactId>
     <packaging>jar</packaging>
     <name>Techsenger JediTermFX - App</name>
+    <description>The debug and example application</description>
 
     <properties>
         <javafx.classifier>linux</javafx.classifier>

@@ -11,6 +11,7 @@
     <artifactId>jeditermfx-ui</artifactId>
     <packaging>jar</packaging>
     <name>Techsenger JediTermFX - UI</name>
+    <description>The implementation of the UI in JavaFX</description>
 
     <dependencies>
         <dependency>
