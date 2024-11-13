@@ -10,7 +10,7 @@
     <groupId>com.techsenger.jeditermfx</groupId>
     <artifactId>jeditermfx-ui</artifactId>
     <packaging>jar</packaging>
-    <name>Techsenger JediTermFX - UI</name>
+    <name>JediTermFX - UI</name>
     <description>The implementation of the UI in JavaFX</description>
 
     <dependencies>

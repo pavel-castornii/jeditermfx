@@ -30,7 +30,9 @@
                 <include>org.jetbrains.pty4j:pty4j</include>
                 <include>org.jetbrains.pty4j:purejavacomm</include>
                 <include>org.slf4j:slf4j-api</include>
-                <include>org.slf4j:slf4j-jdk14</include>
+                <include>org.apache.logging.log4j:log4j-api</include>
+                <include>org.apache.logging.log4j:log4j-core</include>
+                <include>org.apache.logging.log4j:log4j-slf4j2-impl</include>
                 <include>org.openjfx:javafx-controls</include>
                 <include>org.openjfx:javafx-base</include>
                 <include>org.openjfx:javafx-graphics</include>

@@ -17,7 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.function.IntConsumer;
-import java.util.logging.Level;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -57,10 +58,11 @@ public abstract class AbstractTerminalApplication extends Application {
         final MenuBar mb = new MenuBar();
         final Menu dm = new Menu("Debug");
         Menu logLevel = new Menu("Set log level ...");
-        Level[] levels = new Level[]{Level.ALL, Level.FINE, Level.INFO, Level.WARNING, Level.SEVERE, Level.OFF};
+        Level[] levels = new Level[]{Level.ALL, Level.TRACE, Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR,
+            Level.FATAL, Level.OFF};
         for (final Level l : levels) {
-            var item = new MenuItem(l.toString());
-            item.setOnAction(e -> java.util.logging.Logger.getLogger("").setLevel(l));
+            var item = new MenuItem(l.name());
+            item.setOnAction(e ->  Configurator.setRootLevel(l));
             logLevel.getItems().add(item);
         }
         Menu cursorPosition = new Menu("Set cursor position ...");

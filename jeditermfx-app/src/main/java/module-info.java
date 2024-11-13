@@ -8,10 +8,10 @@ module com.techsenger.jeditermfx.app {
     requires org.jetbrains.annotations;
     requires org.slf4j;
     requires java.desktop;
-    requires java.logging;
     requires javafx.base;
     requires javafx.graphics;
     requires javafx.controls;
+    requires org.apache.logging.log4j.core;
 
     exports com.techsenger.jeditermfx.app;
     exports com.techsenger.jeditermfx.app.example;
