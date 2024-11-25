@@ -132,7 +132,7 @@
                 <configuration>
                     <mainClass>com.techsenger.jeditermfx.app.JediTermFxMain</mainClass>
                     <options>
-                        <option>-Xrunjdwp:transport=dt_socket,address=7701,server=y,suspend=n</option>
+                        <option>-Xrunjdwp:transport=dt_socket,address=7700,server=y,suspend=n</option>
                     </options>
                 </configuration>
             </plugin>
