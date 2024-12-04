@@ -55,7 +55,6 @@ This class contains the minimal code needed to launch a terminal in a JavaFX app
 This project is available on Maven Central:
 
 ```
-<!-- main modules -->
 <dependency>
     <groupId>com.techsenger.jeditermfx</groupId>
     <artifactId>jeditermfx-core</artifactId>
@@ -64,12 +63,6 @@ This project is available on Maven Central:
 <dependency>
     <groupId>com.techsenger.jeditermfx</groupId>
     <artifactId>jeditermfx-ui</artifactId>
-    <version>${jeditermfx.version}</version>
-</dependency>
-<!-- example and debug application -->
-<dependency>
-    <groupId>com.techsenger.jeditermfx</groupId>
-    <artifactId>jeditermfx-app</artifactId>
     <version>${jeditermfx.version}</version>
 </dependency>
 ```
