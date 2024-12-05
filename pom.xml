@@ -75,6 +75,35 @@
                 <type>pom</type>
             </dependency>
 
+            <!--### JediTermFX ###-->
+            <dependency>
+                <groupId>com.techsenger.jeditermfx</groupId>
+                <artifactId>jeditermfx-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.techsenger.jeditermfx</groupId>
+                <artifactId>jeditermfx-ui</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!--### JavaFX ###-->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-base</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-graphics</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+
             <!--### JetBrains ###-->
             <dependency>
                 <groupId>org.jetbrains</groupId>
