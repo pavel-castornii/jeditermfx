@@ -21,7 +21,6 @@ import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.InputEvent;
-import java.awt.event.InputMethodEvent;
 import java.net.URI;
 import java.text.AttributedCharacterIterator;
 import java.text.BreakIterator;
@@ -94,6 +93,10 @@ import com.techsenger.jeditermfx.core.model.hyperlinks.LinkInfo;
 import com.techsenger.jeditermfx.core.util.CharUtils;
 import com.techsenger.jeditermfx.ui.SubstringFinder.FindResult.FindItem;
 import static com.techsenger.jeditermfx.core.util.Platform.isWindows;
+import javafx.collections.ObservableList;
+import javafx.scene.input.InputMethodEvent;
+import javafx.scene.input.InputMethodRequests;
+import javafx.scene.input.InputMethodTextRun;
 
 public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
 
@@ -351,6 +354,8 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         this.canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             doOnMouseClicked(e);
         });
+        this.canvas.inputMethodRequestsProperty().set(new MyInputMethodRequests());
+        this.canvas.setOnInputMethodTextChanged(e -> processInputMethodEvent(e));
         this.canvasPane.widthProperty().addListener((ov, oldV, newV) -> {
             sizeTerminalFromComponent();
         });
@@ -1972,7 +1977,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
             if (!e.getText().isEmpty()) {
                 keychar = e.getText().charAt(0);
             } else {
-                keychar = Character.MIN_VALUE;
+                keychar = '\uffff';
             }
             // numLock does not change the code sent by keypad VK_DELETE
             // although it send the char '.'
@@ -2000,7 +2005,8 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
                 myTerminalStarter.sendString(new String(new char[]{ASCII_ESC, simpleMapKeyCodeToChar(e)}), true);
                 return true;
             }
-            if (Character.isISOControl(keychar)) { // keys filtered out here will be processed in processTerminalKeyTyped
+            if (e.getText().length() > 0 && Character.isISOControl(e.getText().codePointAt(0))) {
+                // keys filtered out here will be processed in processTerminalKeyTyped
                 return processCharacter(e, keychar);
             }
         } catch (Exception ex) {
@@ -2058,7 +2064,7 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
             return false;
         }
         var keyChar = e.getCharacter().charAt(0);
-        if (!Character.isISOControl(keyChar)) {
+        if (e.getCharacter().length() == 0 || !Character.isISOControl((e.getCharacter().codePointAt(0)))) {
             // keys filtered out here will be processed in processTerminalKeyPressed
             try {
                 return processCharacter(e, keyChar);
@@ -2110,26 +2116,35 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
      * InputMethod implementation
      * For details read http://docs.oracle.com/javase/7/docs/technotes/guides/imf/api-tutorial.html
      */
-    //@Override TODO
-    protected void processInputMethodEvent(InputMethodEvent e) {
-        int commitCount = e.getCommittedCharacterCount();
-        if (commitCount > 0) {
-            myInputMethodUncommittedChars = null;
-            AttributedCharacterIterator text = e.getText();
-            if (text != null) {
-                StringBuilder sb = new StringBuilder();
-                //noinspection ForLoopThatDoesntUseLoopVariable
-                for (char c = text.first(); commitCount > 0; c = text.next(), commitCount--) {
-                    if (c >= 0x20 && c != 0x7F) { // Hack just like in javax.swing.text.DefaultEditorKit.DefaultKeyTypedAction
-                        sb.append(c);
-                    }
-                }
-                if (sb.length() > 0) {
-                    myTerminalStarter.sendString(sb.toString(), true);
+    private void processInputMethodEvent(InputMethodEvent e) {
+        if (e.getCommitted() == null) {
+            return;
+        }
+        String committedText = e.getCommitted();
+        if (!committedText.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (char c : committedText.toCharArray()) {
+                if (c >= 0x20 && c != 0x7F) { // Filtering characters
+                    sb.append(c);
                 }
             }
+            if (sb.length() > 0) {
+                // Sending the committed text to myTerminalStarter
+                myTerminalStarter.sendString(sb.toString(), true);
+            }
+        }
+
+        // Handling uncommitted text (in-progress input)
+        ObservableList<InputMethodTextRun> composedTextRuns = e.getComposed();
+        if (!composedTextRuns.isEmpty()) {
+            StringBuilder uncommittedTextBuilder = new StringBuilder();
+            for (InputMethodTextRun run : composedTextRuns) {
+                uncommittedTextBuilder.append(run.getText()); // Extracting text from the run
+            }
+            myInputMethodUncommittedChars = uncommittedTextBuilder.toString();
         } else {
-            myInputMethodUncommittedChars = uncommittedChars(e.getText());
+            // Reset if there is no uncommitted text
+            myInputMethodUncommittedChars = null;
         }
     }
 
@@ -2146,56 +2161,35 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
         return sb.toString();
     }
 
-//TODO
-//  @Override
-//  public InputMethodRequests getInputMethodRequests() {
-//    return new MyInputMethodRequests();
-//  }
-//
-//  private class MyInputMethodRequests implements InputMethodRequests {
-//    @Override
-//    public Rectangle getTextLocation(TextHitInfo offset) {
-//      Rectangle r = new Rectangle(myCursor.getCoordX() * myCharSize.width + getInsetX(), (myCursor.getCoordY() + 1) * myCharSize.height,
-//              0, 0);
-//      java.awt.Point p = TerminalPanel.this.getLocationOnScreen();
-//      r.translate(p.x, p.y);
-//      return r;
-//    }
-//
-//    @Nullable
-//    @Override
-//    public TextHitInfo getLocationOffset(int x, int y) {
-//      return null;
-//    }
-//
-//    @Override
-//    public int getInsertPositionOffset() {
-//      return 0;
-//    }
-//
-//    @Override
-//    public AttributedCharacterIterator getCommittedText(int beginIndex, int endIndex, AttributedCharacterIterator.Attribute[] attributes) {
-//      return null;
-//    }
-//
-//    @Override
-//    public int getCommittedTextLength() {
-//      return 0;
-//    }
-//
-//    @Nullable
-//    @Override
-//    public AttributedCharacterIterator cancelLatestCommittedText(AttributedCharacterIterator.Attribute[] attributes) {
-//      return null;
-//    }
-//
-//    @Nullable
-//    @Override
-//    public AttributedCharacterIterator getSelectedText(AttributedCharacterIterator.Attribute[] attributes) {
-//      return null;
-//    }
-//
-//  }
+    private class MyInputMethodRequests implements InputMethodRequests {
+
+        @Override
+        public Point2D getTextLocation(int i) {
+            var x = myCursor.getCoordX() * myCharSize.getWidth() + getInsetX();
+            var y = (myCursor.getCoordY() + 1) * myCharSize.getHeight();
+            var screenBounds = canvas.localToScreen(canvas.getBoundsInLocal());
+            double screenX = screenBounds.getMinX();
+            double screenY = screenBounds.getMinY();
+            var point = new Point2D(x + screenX, y + screenY);
+            return point;
+        }
+
+        @Override
+        public int getLocationOffset(int i, int i1) {
+            return 0;
+        }
+
+        @Override
+        public void cancelLatestCommittedText() {
+
+        }
+
+        @Override
+        public String getSelectedText() {
+            return null;
+        }
+
+    }
 
     public void dispose() {
         myRepaintTimeLine.stop();
