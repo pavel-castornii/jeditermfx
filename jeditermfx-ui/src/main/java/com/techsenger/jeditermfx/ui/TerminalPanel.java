@@ -97,6 +97,8 @@ import javafx.collections.ObservableList;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.InputMethodRequests;
 import javafx.scene.input.InputMethodTextRun;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
 
 public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
 
@@ -2170,7 +2172,9 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
             var screenBounds = canvas.localToScreen(canvas.getBoundsInLocal());
             double screenX = screenBounds.getMinX();
             double screenY = screenBounds.getMinY();
-            var point = new Point2D(x + screenX, y + screenY);
+            //if user enables screen scaling in his operating system we must correct x and y
+            Screen screen = resolveScreen();
+            var point = new Point2D((x + screenX) * screen.getOutputScaleX(), (y + screenY) * screen.getOutputScaleY());
             return point;
         }
 
@@ -2189,6 +2193,21 @@ public class TerminalPanel implements TerminalDisplay, TerminalActionProvider {
             return null;
         }
 
+        /**
+         * Returns the screen that shows the top left corner of the window.
+         *
+         * @return
+         */
+        private Screen resolveScreen() {
+            Stage stage = (Stage) canvas.getScene().getWindow();
+            Rectangle2D stageBounds = new Rectangle2D(stage.getX(), stage.getY(), 0, 0);
+            var screens = Screen.getScreensForRectangle(stageBounds);
+            if (!screens.isEmpty()) {
+                return screens.get(0);
+            } else {
+                return Screen.getPrimary();
+            }
+        }
     }
 
     public void dispose() {
